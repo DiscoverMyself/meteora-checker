@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=yes">
+  <title>Meteora Point Checker</title>
+  <link rel="icon" href="https://github.com/DiscoverMyself/Ramanode-Guides/blob/main/IMG_0245-removebg-preview%202.png?raw=true" type="image/png"> 
+  <style>
+    textarea {
+      width: 100%;
+      height: 100px;
+    }
+
+    output {
+      display: block;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+   <header>
+      <img src="https://meteora.ag/logo.svg" alt="Logo" style="height: 50px;"> <!-- Adjust height as needed -->
+      <h2>Meteora Point Checker</h2>
+    </header>
+  <label>Input your address(es)</label>
+  <textarea id="input" placeholder="6cpnM..."></textarea>
+  <button id="submit">
+    Check Address
+  </button>
+  <output id="output"></output>
+  <script>
+    const $input = document.getElementById('input');
+    const $output = document.getElementById('output');
+    const $submit = document.getElementById('submit');
+
+    $input.value = localStorage.getItem('input') || '';
+
+    $submit.addEventListener('click', async (event) => {
+      event.preventDefault();
+      await check();
+    });
+
+    async function fetchData(address) {
+      try {
+        const url = `https://point-api.meteora.ag/points/${address}`; // Replace with your API endpoint
+        const response = await fetch(url);
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error(`Failed to fetch data for address ${address}: ${error}`);
+        return { total_points: 0, last_24h_points: 0, last_updated: "" }; // Return default values in case of error
+      }
+    }
+
+    async function check() {
+      localStorage.setItem('input', $input.value);
+      $output.textContent = '';
+      const addresses = $input.value.trim().split('\n');
+      let output = [];
+      let totalPoints = 0;
+
+      const promises = addresses.map(async (address) => {
+        address = address.trim();
+        if (!address) {
+          return;
+        }
+        
+        const data = await fetchData(address);
+        const { total_points, last_24h_points, last_updated } = data;
+
+        output.push(`<div>Total Points: ${total_points}</div>`);
+        output.push(`<div>Last 24h Points: ${last_24h_points}</div>`);
+        output.push(`<div>Last Updated: ${last_updated}</div>`);
+
+        totalPoints += total_points;
+      });
+
+      await Promise.all(promises);
+
+      output.push(`<div>Total Combined Points: ${totalPoints}</div>`); // Display combined total points
+      $output.innerHTML = output.join('');
+    }
+  </script>
+   <a href="https://t.me/HappyCuanAirdrop" target="_blank"><img height="40" width="40" style="position: absolute; top:0 ; right: 0; border: 0;" src=https://github.com/DiscoverMyself/Ramanode-Guides/blob/main/IMG_0245-removebg-preview%202.png?raw=true alt="Subscribe Our Channel" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a> 
+  </script>
+
+</body>
+</html>
